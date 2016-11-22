@@ -233,12 +233,6 @@ void loop() {
     SelectAndSend(6);
 
   if (radioON) {
-
-
-
-      
-
-        
       // the end-device should also open a receiving window to receive 
       // INIT & UPDT messages
       e=1;
@@ -302,7 +296,7 @@ void loop() {
          {
              st=0;
          }
-          UpdateDB(iden, st)
+          UpdateDB(iden, st);
 
       }
 
