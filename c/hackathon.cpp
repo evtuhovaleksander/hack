@@ -50,54 +50,6 @@ uint8_t MSS=40;
 
 
 
-
-
-
-void SelectAndSend(int iden,stat)
-{
-    int rc;
-    char *error;
-
-
-    sqlite3 *db;
-    rc = sqlite3_open("places.db", &db);
-
-
-    char *sqlSelect = "SELECT status FROM Place where identifier=6;";
-    char **results = NULL;
-    int rows, columns;
-    sqlite3_get_table(db, sqlSelect, &results, &rows, &columns, &error);
-    if(columns==1&&rows==1)
-    {
-        int cellPosition =0;
-        char *status=results[cellPosition];
-        send_data(6,status);
-    }
-    sqlite3_free_table(results);
-    sqlite3_close(db);
-
-}
-
-
-void UpdateDB(int identifier, int status)
-{
-    int rc;
-    char *error;
-
-
-    sqlite3 *db;
-    rc = sqlite3_open("MyDb.db", &db);
-
-    // Execute SQL
-
-    char *sqlUpdateTable = "Update Place Set status = 1 where identifier=6";
-    rc = sqlite3_exec(db, sqlCreateTable, NULL, NULL, &error);
-
-    sqlite3_close(db);
-
-
-}
-
 void send_data(int iden,char *status)
 {
     int i=0, e;
@@ -138,6 +90,54 @@ void send_data(int iden,char *status)
     }
 
 }
+
+
+void SelectAndSend(int iden)
+{
+    int rc;
+    char *error;
+
+
+    sqlite3 *db;
+    rc = sqlite3_open("places.db", &db);
+
+
+    char *sqlSelect = "SELECT status FROM Place where identifier=6;";
+    char **results = NULL;
+    int rows, columns;
+    sqlite3_get_table(db, sqlSelect, &results, &rows, &columns, &error);
+    if(columns==1&&rows==1)
+    {
+        int cellPosition =0;
+        char *status=results[cellPosition];
+        send_data(6,status);
+    }
+    sqlite3_free_table(results);
+    sqlite3_close(db);
+
+}
+
+
+void UpdateDB(int identifier, int status)
+{
+    int rc;
+    char *error;
+
+
+    sqlite3 *db;
+    rc = sqlite3_open("MyDb.db", &db);
+
+    // Execute SQL
+
+    char *sqlUpdateTable = "Update Place Set status = 1 where identifier=6";
+    rc = sqlite3_exec(db, sqlUpdateTable, NULL, NULL, &error);
+
+    sqlite3_close(db);
+
+
+}
+
+
 
 
 
