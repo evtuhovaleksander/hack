@@ -8,6 +8,9 @@
 #include <sys/time.h>
 #include <time.h>
 #include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sqlite3.h>
 
 // Define section
 
@@ -18,7 +21,7 @@
 uint8_t loraChannelIndex=0;
 uint32_t loraChannelArray[MAX_NB_CHANNEL]={CH_10_868,CH_11_868,CH_12_868,CH_13_868,CH_14_868,CH_15_868,CH_16_868,CH_17_868,CH_18_868};
 #define LORAMODE  1 //Mode
-#define LORA_ADDR 1 //Self address
+#define LORA_ADDR 255 //Self address
 #define DEFAULT_DEST_ADDR 6 //Gateway address
 
   #define PRINTLN                   printf("\n")
@@ -102,40 +105,20 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+
+
+
 
   int i=0, e;
   int cmdValue;
-// START OF PERIODIC TASKS
+    SelectAndSend(6);
 
   if (radioON) {
 
 
-      // periodic message sending
-      if (inter_pkt_time)
+
       
-        if (millis()-last_periodic_sendtime > (random_inter_pkt_time?random_inter_pkt_time:inter_pkt_time)) {
-          PRINT_CSTSTR("%s","Start to send data: ");
-          PRINT_VALUE("%ld",millis());  
-          PRINTLN;
-          
-          sx1272.CarrierSense();
-          long startSend=millis();
-          e = sx1272.sendPacketTimeout(dest_addr, (uint8_t*)cmd, strlen(cmd), 10000);
-          PRINT_CSTSTR("%s","LoRa Sent in ");
-          PRINT_VALUE("%ld",millis()-startSend);  
-          PRINTLN;
-          PRINT_CSTSTR("%s","Packet sent, state ");
-          PRINT_VALUE("%d",e);
-          PRINTLN;
-          if (random_inter_pkt_time) {                
-            random_inter_pkt_time=random()%inter_pkt_time+1000;
-            PRINT_CSTSTR("%s","next in ");
-            PRINT_VALUE("%ld",random_inter_pkt_time);
-            PRINTLN;
-          }
-          last_periodic_sendtime=millis();       
-        }  
+
         
       // the end-device should also open a receiving window to receive 
       // INIT & UPDT messages
@@ -187,7 +170,20 @@ void loop() {
                    sx1272._codingRate+4,
                    sx1272._spreadingFactor);
                    
-         PRINT_STR("%s",sprintf_buf);  
+         PRINT_STR("%s",sprintf_buf);
+
+
+          int iden=sx1272.packet_received.src;
+          int st=0;
+         if((char)sx1272.packet_received.data[0]=='1')
+         {
+             st=1;
+         }
+          else
+         {
+             st=0;
+         }
+          UpdateDB(iden, st)
 
       }
 
@@ -204,4 +200,96 @@ int main (int argc, char *argv[]){
   }
   
   return (0);
+}
+
+
+
+void send_data(int iden,char *status)
+{
+    int i=0, e;
+    int cmdValue;
+    if (radioON) {
+
+
+
+        if (inter_pkt_time) {
+
+            if (millis() - last_periodic_sendtime > (random_inter_pkt_time ? random_inter_pkt_time : inter_pkt_time)) {
+                PRINT_CSTSTR("%s", "Start to send data: ");
+                PRINT_VALUE("%ld", millis());
+                PRINTLN;
+
+                sx1272.CarrierSense();
+                long startSend = millis();
+                e = sx1272.sendPacketTimeout(iden, (uint8_t *) status, strlen(status), 10000);
+                PRINT_CSTSTR("%s", "LoRa Sent in ");
+                PRINT_VALUE("%ld", millis() - startSend);
+                PRINTLN;
+                PRINT_CSTSTR("%s", "Packet sent, state ");
+                PRINT_VALUE("%d", e);
+                PRINTLN;
+                if (random_inter_pkt_time) {
+                    random_inter_pkt_time = random() % inter_pkt_time + 1000;
+                    PRINT_CSTSTR("%s", "next in ");
+                    PRINT_VALUE("%ld", random_inter_pkt_time);
+                    PRINTLN;
+                }
+                last_periodic_sendtime = millis();
+            }
+        }
+
+
+
+
+    }
+
+}
+
+void SelectAndSend(int iden,stat)
+{
+    int rc;
+    char *error;
+
+
+    sqlite3 *db;
+    rc = sqlite3_open("places.db", &db);
+
+
+    char *sqlSelect = "SELECT status FROM Place where identifier=6;";
+    char **results = NULL;
+    int rows, columns;
+    sqlite3_get_table(db, sqlSelect, &results, &rows, &columns, &error);
+    if(columns==1&&rows==1)
+    {
+        int cellPosition =0;
+        char *status=results[cellPosition];
+        send_data(6,status);
+    }
+    sqlite3_free_table(results);
+    sqlite3_close(db);
+    return 0;
+}
+
+
+int UpdateDB(int identifier, int status)
+{
+    int rc;
+    char *error;
+
+
+    sqlite3 *db;
+    rc = sqlite3_open("MyDb.db", &db);
+
+    // Execute SQL
+
+    char *sqlUpdateTable = "Update Place Set status = 1 where identifier=6";
+    rc = sqlite3_exec(db, sqlCreateTable, NULL, NULL, &error);
+
+
+
+
+    sqlite3_close(db);
+
+
+
 }
