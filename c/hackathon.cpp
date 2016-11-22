@@ -64,10 +64,12 @@ void send_data(int iden,char *status)
                 PRINT_CSTSTR("%s", "Start to send data: ");
                 PRINT_VALUE("%ld", millis());
                 PRINTLN;
-
+		//char bufff[10];
+		//char *ress=itoa(status,bufff,10);
+              
                 sx1272.CarrierSense();
                 long startSend = millis();
-                e = sx1272.sendPacketTimeout(iden, (uint8_t *) status, strlen(status), 10000);
+                e = sx1272.sendPacketTimeout(iden,status , strlen(status), 10000);
                 PRINT_CSTSTR("%s", "LoRa Sent in ");
                 PRINT_VALUE("%ld", millis() - startSend);
                 PRINTLN;
@@ -101,8 +103,10 @@ void SelectAndSend(int iden)
     sqlite3 *db;
     rc = sqlite3_open("places.db", &db);
 
-
-    char *sqlSelect = "SELECT status FROM Place where identifier=6;";
+	char res[60];
+	char *sqlSeect = malloc(60);
+	sprintf(sqlSelect,"SELECT status FROM Place where identifier=%d;",iden);
+    //char *sqlSelect = "SELECT status FROM Place where identifier=6;";
     char **results = NULL;
     int rows, columns;
     sqlite3_get_table(db, sqlSelect, &results, &rows, &columns, &error);
@@ -110,7 +114,7 @@ void SelectAndSend(int iden)
     {
         int cellPosition =0;
         char *status=results[cellPosition];
-        send_data(6,status);
+        send_data(iden,status);
     }
     sqlite3_free_table(results);
     sqlite3_close(db);
@@ -128,8 +132,9 @@ void UpdateDB(int identifier, int status)
     rc = sqlite3_open("MyDb.db", &db);
 
     // Execute SQL
-
-    char *sqlUpdateTable = "Update Place Set status = 1 where identifier=6";
+	 char *sqlUpdateTable=malloc(60);
+	sprintf(sqlUpdateTable,"Update Place Set status = %d where identifier=%d,indentifer,status);
+   // char *sqlUpdateTable = "Update Place Set status = 1 where identifier=6";
     rc = sqlite3_exec(db, sqlUpdateTable, NULL, NULL, &error);
 
     sqlite3_close(db);
