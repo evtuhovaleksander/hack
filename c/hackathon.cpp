@@ -267,11 +267,11 @@ void SelectAndSend(int iden,stat)
     }
     sqlite3_free_table(results);
     sqlite3_close(db);
-    return 0;
+
 }
 
 
-int UpdateDB(int identifier, int status)
+void UpdateDB(int identifier, int status)
 {
     int rc;
     char *error;
