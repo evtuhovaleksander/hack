@@ -15,6 +15,10 @@ SX1271_pi2.o:
 
 hackathon:
 	g++ -lrt -lpthread hackathon.o sqlite3.o arduPi_pi2.o SX1272_pi2.o -o hackathon
+
+
+sql:
+	g++ -SQLITE_API -c sqlite3.c -o sqlite3.o
 	
 clean:
 	rm *.o hackathon
