@@ -228,19 +228,25 @@ void setup() {
   
   FLUSHOUTPUT;
   delay(1000);
-
+printf("setup finished");
 }
 
 void loop() {
 
-
+printf("loop start");
 
 
   int i=0, e;
   int cmdValue;
-    SelectAndSend(6);
+    
 
   if (radioON) {
+	  
+	  SelectAndSend(6);
+	  
+	  
+	  
+	  
       // the end-device should also open a receiving window to receive 
       // INIT & UPDT messages
       e=1;
