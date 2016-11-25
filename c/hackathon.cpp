@@ -10,7 +10,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sqlite3.h>
+#include "sqlite3.h"
 
 // Define section
 
