@@ -52,6 +52,7 @@ uint8_t MSS=40;
 
 void send_data(int iden,char *status)
 {
+	prinf("start send func with iden= %d status = %c /n",iden,status);
     int i=0, e;
     int cmdValue;
     if (radioON) {
@@ -90,12 +91,13 @@ void send_data(int iden,char *status)
 
 
     }
-
+prinf("stop send func with iden= %d status = %c /n",iden,status);
 }
 
 
 void SelectAndSend(int iden)
 {
+	prinf("start select and send func with iden= %d /n",iden);
     int rc;
     char *error;
 
@@ -118,12 +120,13 @@ void SelectAndSend(int iden)
     }
     sqlite3_free_table(results);
     sqlite3_close(db);
-
+prinf("stop select and send func with iden= %d /n",iden);
 }
 
 
 void UpdateDB(int identifier, int status)
 {
+	prinf("start update db func with iden= %d , status =%d/n",iden,status);
     int rc;
     char *error;
 
@@ -139,7 +142,7 @@ void UpdateDB(int identifier, int status)
 
     sqlite3_close(db);
 
-
+prinf("stop update db func with iden= %d , status =%d/n",iden,status);
 }
 
 
@@ -293,6 +296,8 @@ void loop() {
 
           int iden=sx1272.packet_received.src;
           int st=0;
+		  
+		  printf("received data=%c/n",(char)sx1272.packet_received.data[0])
          if((char)sx1272.packet_received.data[0]=='1')
          {
              st=1;
